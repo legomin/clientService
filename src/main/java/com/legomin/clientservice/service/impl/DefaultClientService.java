@@ -1,12 +1,12 @@
 package com.legomin.clientservice.service.impl;
 
 import static com.legomin.clientservice.service.ResultEntity.getErrorEntity;
-import static com.legomin.clientservice.service.ResultEntity.getSussessEntity;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Set;
 import java.util.function.Supplier;
 
+import com.legomin.clientservice.domain.Client;
 import com.legomin.clientservice.domain.ClientsRepository;
 import com.legomin.clientservice.domain.exception.DbException;
 import com.legomin.clientservice.service.ClientsService;
@@ -52,35 +52,35 @@ public class DefaultClientService implements ClientsService {
   }
 
   @Override
-  public ResultEntity insertClient(String clientName) {
+  public void insertClient(String clientName) {
     log.debug("About to add new client {}", clientName);
-    return getEntity(() -> {
+    //return getEntity(() -> {
       repository.insertClient(clientName);
-      return getSussessEntity();
-    });
+    //return getSussessEntity();
+    //});
   }
 
   @Override
-  public ResultEntity clientInfo(String clientName) {
+  public Client clientInfo(String clientName) {
     log.debug("About to get client {} info", clientName);
-    return getEntity(() -> getSussessEntity(repository.getClientInfo(clientName)));
+    return repository.getClientInfo(clientName);
   }
 
   @Override
-  public ResultEntity addClientNumber(String clientName, String phoneNumber) {
+  public void addClientNumber(String clientName, String phoneNumber) {
     log.debug("About to add new client {} number {}", clientName, phoneNumber);
-    return getEntity(() -> {
+    //return getEntity(() -> {
       repository.addPhoneNumber(clientName, formatter.apply(phoneNumber));
-      return getSussessEntity();
-    });
+    //return getSussessEntity();
+    //});
   }
 
   @Override
-  public ResultEntity updateClientNumber(String clientName, String phoneNumber, int numberId) {
+  public void updateClientNumber(String clientName, String phoneNumber, int numberId) {
     log.debug("About to update client {} number {}, number id: {}", clientName, phoneNumber, numberId);
-    return getEntity(() -> {
+    //return getEntity(() -> {
       repository.editPhoneNumber(clientName, numberId, formatter.apply(phoneNumber));
-      return getSussessEntity();
-    });
+    //return getSussessEntity();
+    //});
   }
 }

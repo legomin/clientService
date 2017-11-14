@@ -24,28 +24,28 @@ public class ControllerTest {
 
   @Test
   public void testController() throws Exception {
-    this.mockMvc.perform(post("/clients?name=Vasya")).andExpect(status().isCreated());
-    this.mockMvc.perform(post("/clients?name=Vasya")).andExpect(status().isForbidden())
+    this.mockMvc.perform(post("/clients?name=Vasya")).andExpect(status().isOk());
+    this.mockMvc.perform(post("/clients?name=Vasya")).andExpect(status().isBadRequest())
       .andExpect(content().string(containsString("Client Vasya is already exists")));
-    this.mockMvc.perform(post("/clients?name=Petya")).andExpect(status().isCreated());
+    this.mockMvc.perform(post("/clients?name=Petya")).andExpect(status().isOk());
     this.mockMvc.perform(MockMvcRequestBuilders.get("/clients")).andExpect(status().isOk())
       .andExpect(content().json("[Vasya,Petya]"));
 
-    this.mockMvc.perform(post("/clients/Vasya?number=+71231231212&id=")).andExpect(status().isCreated());
-    this.mockMvc.perform(post("/clients/Vova?number=+71231231212&id=")).andExpect(status().isForbidden())
+    this.mockMvc.perform(post("/clients/Vasya?number=+71231231212&id=")).andExpect(status().isOk());
+    this.mockMvc.perform(post("/clients/Vova?number=+71231231212&id=")).andExpect(status().isBadRequest())
       .andExpect(content().string(containsString("Client Vova is not found")));
-    this.mockMvc.perform(post("/clients/Vasya?number=+71231231212&id=")).andExpect(status().isForbidden())
+    this.mockMvc.perform(post("/clients/Vasya?number=+71231231212&id=")).andExpect(status().isBadRequest())
       .andExpect(content().string(containsString("Phone number +71231231212 for client Vasya already exists")));
     this.mockMvc.perform(MockMvcRequestBuilders.get("/clients/Vasya")).andExpect(status().isOk())
       .andExpect(content().json("{name:Vasya,phoneNumbers:[\"+71231231212\"]}"));
 
-    this.mockMvc.perform(post("/clients/Vova?number=+71231231212&id=1")).andExpect(status().isForbidden())
+    this.mockMvc.perform(post("/clients/Vova?number=+71231231212&id=1")).andExpect(status().isBadRequest())
       .andExpect(content().string(containsString("Client Vova is not found")));
-    this.mockMvc.perform(post("/clients/Vasya?number=+71231231212&id=1")).andExpect(status().isForbidden())
+    this.mockMvc.perform(post("/clients/Vasya?number=+71231231212&id=1")).andExpect(status().isBadRequest())
       .andExpect(content().string(containsString("Phone number with id 1 is not exist")));
-    this.mockMvc.perform(post("/clients/Vasya?number=+71231231212&id=0")).andExpect(status().isForbidden())
+    this.mockMvc.perform(post("/clients/Vasya?number=+71231231212&id=0")).andExpect(status().isBadRequest())
       .andExpect(content().string(containsString("Phone number +71231231212 for client Vasya already exists")));
-    this.mockMvc.perform(post("/clients/Vasya?number=+75551231212&id=0")).andExpect(status().isAccepted());
+    this.mockMvc.perform(post("/clients/Vasya?number=+75551231212&id=0")).andExpect(status().isOk());
 
     this.mockMvc.perform(MockMvcRequestBuilders.get("/clients/Vasya")).andExpect(status().isOk())
       .andExpect(content().json("{name:Vasya,phoneNumbers:[\"+75551231212\"]}"));

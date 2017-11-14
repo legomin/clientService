@@ -1,7 +1,7 @@
 package com.legomin.clientservice.domain.inMemoryImpl;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Maps.newConcurrentMap;
 
 import java.util.List;
 import java.util.Map;
@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 public class InMemoryClientsRepository implements ClientsRepository {
 
   private static final Logger log = LoggerFactory.getLogger(InMemoryClientsRepository.class);
-  private final Map<String, List<String>> db = newHashMap();
+  private final Map<String, List<String>> db = newConcurrentMap();
 
   @Override
   public Set<String> getClientsList() {

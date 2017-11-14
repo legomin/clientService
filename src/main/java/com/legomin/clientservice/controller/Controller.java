@@ -1,13 +1,15 @@
 package com.legomin.clientservice.controller;
 
 import java.util.Set;
-import java.util.function.Supplier;
 
+import com.legomin.clientservice.domain.Client;
+import com.legomin.clientservice.domain.exception.DbException;
 import com.legomin.clientservice.service.ClientsService;
-import com.legomin.clientservice.service.ResultEntity;
+import com.legomin.clientservice.service.phoneformatter.exception.PhoneFormatException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,16 +31,6 @@ public class Controller {
     this.clientsService = clientsService;
   }
 
-  private static ResponseEntity getResultResponseEntity(final ResultEntity entity, final Supplier<ResponseEntity> s) {
-    if (entity == null) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    } else if (entity.isError()) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(entity.getErrorDescription());
-    } else {
-      return s.get();
-    }
-  }
-
   /**
    * client list GET function
    *
@@ -57,28 +49,21 @@ public class Controller {
    * Add new client function
    *
    * @param name - new client name
-   * @return - internal error if null is got from service,
-   * forbidden with error description if expected error is got,
-   * 201 status otherwise
    */
   @RequestMapping(value = "/clients", method = RequestMethod.POST)
-  public ResponseEntity insertClient(@RequestParam("name") final String name) {
-    final ResultEntity result = clientsService.insertClient(name);
-    return getResultResponseEntity(result, () -> ResponseEntity.status(HttpStatus.CREATED).build());
+  public void insertClient(@RequestParam("name") final String name) {
+    clientsService.insertClient(name);
   }
 
   /**
    * get client info function
    *
    * @param name - client name
-   * @return - internal error if null is got from service,
-   * forbidden with error description if expected error is got,
-   * client info otherwise
+   * @return - client info
    */
   @RequestMapping(value = "/clients/{name}", method = RequestMethod.GET)
-  public ResponseEntity getClientInfo(@PathVariable final String name) {
-    final ResultEntity result = clientsService.clientInfo(name);
-    return getResultResponseEntity(result, () -> ResponseEntity.ok().body(result.getData()));
+  public Client getClientInfo(@PathVariable final String name) {
+    return clientsService.clientInfo(name);
   }
 
   /**
@@ -87,24 +72,23 @@ public class Controller {
    * @param name   - client name
    * @param number - new phone number
    * @param id     - old number id or empty
-   * @return - internal error if null is got from service,
-   * forbidden with error description if expected error is got,
-   * 201 (new number) or 202 (updated number) status otherwise
    */
   @RequestMapping(value = "/clients/{name}", method = RequestMethod.POST)
-  public ResponseEntity updatePhoneNumber(@PathVariable final String name, @RequestParam("number") final String number,
+  public void updatePhoneNumber(@PathVariable final String name, @RequestParam("number") final String number,
     @RequestParam("id") Integer id) {
-
-    final ResultEntity result;
-    final HttpStatus responseStatus;
     if (id == null) {
-      result = clientsService.addClientNumber(name, number);
-      responseStatus = HttpStatus.CREATED;
+      clientsService.addClientNumber(name, number);
     } else {
-      result = clientsService.updateClientNumber(name, number, id);
-      responseStatus = HttpStatus.ACCEPTED;
+      clientsService.updateClientNumber(name, number, id);
     }
-    return getResultResponseEntity(result, () -> ResponseEntity.status(responseStatus).body(result.getData()));
+  }
+
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity handleException(Exception e) {
+    if (e instanceof DbException || e instanceof PhoneFormatException) {
+      return ResponseEntity.badRequest().body(e.getLocalizedMessage());
+    }
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getLocalizedMessage());
   }
 
 }

@@ -2,9 +2,7 @@ package com.legomin.clientservice.service;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static junit.framework.TestCase.assertEquals;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -14,7 +12,6 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import com.legomin.clientservice.domain.Client;
 import com.legomin.clientservice.domain.ClientsRepository;
-import com.legomin.clientservice.domain.exception.DbException;
 import com.legomin.clientservice.service.impl.DefaultClientService;
 import com.legomin.clientservice.service.phoneformatter.PhoneNumberFormatter;
 
@@ -56,15 +53,8 @@ public class ClientsServiceTest {
 
   @Test
   public void testInsertClientSussessRepoResult() throws Exception {
-    assertEquals("Unexpected result", ResultEntity.getSussessEntity(), service.insertClient("test3"));
+    service.insertClient("test3");
     verify(repository).insertClient("test3");
-  }
-
-  @Test
-  public void testInsertClientFailRepoResult() throws Exception {
-    doThrow(new DbException("WTF")).when(repository).insertClient(anyString());
-    assertEquals("Unexpected result", ResultEntity.getErrorEntity("WTF"), service.insertClient("test4"));
-    verify(repository).insertClient("test4");
   }
 
   @Test
@@ -72,18 +62,8 @@ public class ClientsServiceTest {
     final String vasya = "Vasya Pupkin";
     final Client expectedClient = new Client(vasya, newArrayList("001", "002"));
     when(repository.getClientInfo(eq(vasya))).thenReturn(expectedClient);
-    assertEquals("Unexpected result", ResultEntity.getSussessEntity(expectedClient), service.clientInfo(vasya));
+    assertEquals("Unexpected result", expectedClient, service.clientInfo(vasya));
     verify(repository).getClientInfo(vasya);
-  }
-
-  @Test
-  public void testAddClientNumber() throws Exception {
-
-  }
-
-  @Test
-  public void testUpdateClientNumber() throws Exception {
-
   }
 
 }
