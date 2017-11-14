@@ -1,18 +1,13 @@
 package com.legomin.clientservice.service.impl;
 
-import static com.legomin.clientservice.service.ResultEntity.getErrorEntity;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Set;
-import java.util.function.Supplier;
 
 import com.legomin.clientservice.domain.Client;
 import com.legomin.clientservice.domain.ClientsRepository;
-import com.legomin.clientservice.domain.exception.DbException;
 import com.legomin.clientservice.service.ClientsService;
-import com.legomin.clientservice.service.ResultEntity;
 import com.legomin.clientservice.service.phoneformatter.PhoneNumberFormatter;
-import com.legomin.clientservice.service.phoneformatter.exception.PhoneFormatException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,14 +32,6 @@ public class DefaultClientService implements ClientsService {
     this.formatter = requireNonNull(formatter);
   }
 
-  private static ResultEntity getEntity(Supplier<ResultEntity> s) {
-    try {
-      return s.get();
-    } catch (DbException | PhoneFormatException e) {
-      return getErrorEntity(e.getLocalizedMessage());
-    }
-  }
-
   @Override
   public Set<String> getClients() {
     log.debug("About to get clients");
@@ -54,10 +41,7 @@ public class DefaultClientService implements ClientsService {
   @Override
   public void insertClient(String clientName) {
     log.debug("About to add new client {}", clientName);
-    //return getEntity(() -> {
       repository.insertClient(clientName);
-    //return getSussessEntity();
-    //});
   }
 
   @Override
@@ -69,18 +53,12 @@ public class DefaultClientService implements ClientsService {
   @Override
   public void addClientNumber(String clientName, String phoneNumber) {
     log.debug("About to add new client {} number {}", clientName, phoneNumber);
-    //return getEntity(() -> {
       repository.addPhoneNumber(clientName, formatter.apply(phoneNumber));
-    //return getSussessEntity();
-    //});
   }
 
   @Override
   public void updateClientNumber(String clientName, String phoneNumber, int numberId) {
     log.debug("About to update client {} number {}, number id: {}", clientName, phoneNumber, numberId);
-    //return getEntity(() -> {
       repository.editPhoneNumber(clientName, numberId, formatter.apply(phoneNumber));
-    //return getSussessEntity();
-    //});
   }
 }
